@@ -3,6 +3,28 @@ const fs = require('fs');
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
 );
+
+// o val é usado apenas quando o middle for usado diretamente na rota pelo route.param.
+exports.checkID = (req, res, next, val) => {
+  if (req.params.id * 1 > tours.length) {
+    return res.status(404).json({
+      status: 'fail',
+      messager: 'Invalid ID.',
+    });
+  }
+  next();
+};
+
+exports.chekBodyRequest = (req, res, next) => {
+  if (!req.body.name || !req.body.price) {
+    return res.status(400).json({
+      status: 'fail',
+      messager: "Bad request, request.body doen't match with expected patern.",
+    });
+  }
+  next();
+};
+
 exports.getAllTour = (req, res) => {
   res.status(200).json({
     status: 'sucess',
@@ -16,13 +38,6 @@ exports.getAllTour = (req, res) => {
 exports.getTourById = (req, res) => {
   const id = req.params.id * 1; // converte o parâmetro ID em um number.
   const tour = tours.find((el) => el.id === id);
-
-  if (!tour) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Tour not found.',
-    });
-  }
 
   res.status(200).json({
     status: 'sucess',
@@ -52,10 +67,6 @@ exports.createTour = (req, res) => {
 };
 
 exports.updateTour = (req, res) => {
-  if (req.params.id * 1 > tours.length) {
-    return res.status(404).json({ status: 'fail', message: 'Tours not found' });
-  }
-
   res.status(200).json({
     status: 'sucess',
     data: {
@@ -65,10 +76,6 @@ exports.updateTour = (req, res) => {
 };
 
 exports.deleteTour = (req, res) => {
-  if (req.params.id * 1 > tours.length) {
-    return res.status(404).json({ status: 'fail', messager: 'Tour not found' });
-  }
-
   return res.status(204).json({
     status: 'sucess',
     data: null,
