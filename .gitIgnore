@@ -1,4 +1,3 @@
 node_modules
 public
-.prettierrc
-.eslintrc.json
+.DS_store
