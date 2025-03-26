@@ -2,7 +2,6 @@ const Tour = require('../models/tourModel');
 
 exports.getAllTour = async (req, res) => {
   try {
-    console.log(req.query);
     // buid query
     // 1a) Filtering
     const queryObj = { ...req.query };
@@ -11,7 +10,7 @@ exports.getAllTour = async (req, res) => {
     // 1b) Advenced filtering
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
-    console.log(JSON.parse(queryStr));
+
     let query = Tour.find(JSON.parse(queryStr));
 
     // 2) Sorting
@@ -20,6 +19,14 @@ exports.getAllTour = async (req, res) => {
       query = query.sort(sortBy);
     } else {
       query = query.sort('-createdAt');
+    }
+
+    //3) field limiting
+    if (req.query.fields) {
+      const fields = req.query.fields.split(',').join(' ');
+      query = query.select(fields);
+    } else {
+      query = query.select('-__v'); // o - remove o campo do documento repostar. Semelhante ao agregate nas versões mais recentes do mongo
     }
 
     // execute query
