@@ -20,7 +20,7 @@ const tourSchema = new mongoose.Schema({
     required: [true, 'Informe a dificuldade do passeio.'],
     trim: true
   },
-  ratingAvarege: {
+  ratingsAverage: {
     type: Number,
     default: 4.5
   },

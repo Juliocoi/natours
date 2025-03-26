@@ -2,17 +2,26 @@ const Tour = require('../models/tourModel');
 
 exports.getAllTour = async (req, res) => {
   try {
+    console.log(req.query);
     // buid query
-    // 1) Filtering
+    // 1a) Filtering
     const queryObj = { ...req.query };
     const exclueFields = ['page', 'sort', 'limit', 'fields'];
     exclueFields.forEach(el => delete queryObj[el]); // exclui propriedades de paginação q não precisam ir para a query. Não necessário a partir do mongoose 6.
-    // 2) Advenced filtering
+    // 1b) Advenced filtering
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
+    console.log(JSON.parse(queryStr));
+    let query = Tour.find(JSON.parse(queryStr));
 
-    console.log(queryStr);
-    const query = Tour.find(JSON.parse(queryStr));
+    // 2) Sorting
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' '); //cria um segundo parametro para o filtro sort('price ratingAverage'), url exemplo: /api/v1/tours?sort=price,ratingsAverage
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort('-createdAt');
+    }
+
     // execute query
     const tours = await query;
 
