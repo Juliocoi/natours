@@ -2,11 +2,24 @@ const Tour = require('../models/tourModel');
 
 exports.getAllTour = async (req, res) => {
   try {
-    const tours = await Tour.find(req.query);
+    // buid query
+    // 1) Filtering
+    const queryObj = { ...req.query };
+    const exclueFields = ['page', 'sort', 'limit', 'fields'];
+    exclueFields.forEach(el => delete queryObj[el]); // exclui propriedades de paginação q não precisam ir para a query. Não necessário a partir do mongoose 6.
+    // 2) Advenced filtering
+    let queryStr = JSON.stringify(queryObj);
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
+
+    console.log(queryStr);
+    const query = Tour.find(JSON.parse(queryStr));
+    // execute query
+    const tours = await query;
+
+    // const { page, sort, limit, fields, ...queryObj } = req.query; query usando destructing. Usar para mongose 6+ ver: https://mongoosejs.com/docs/guide.html#strictQuery
 
     res.status(200).json({
       status: 'sucess',
-      createdAt: req.requestTime,
       results: tours.length,
       data: {
         tours

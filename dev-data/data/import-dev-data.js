@@ -42,6 +42,7 @@ const deleteData = async () => {
   process.exit();
 };
 
+//definição dos parâmetros para o process.argv
 if (process.argv[2] === '--import') {
   importData();
 } else if (process.argv[2] === '--delete') {
